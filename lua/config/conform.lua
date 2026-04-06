@@ -3,20 +3,20 @@ local M = {}
 function M.setup()
 	require("conform").setup({
 		formatters = {
-			pint = {
+			php_cs_fixer = {
 				command = function(ctx)
-					local local_pint = vim.fs.find("vendor/bin/pint", {
+					local local_php_cs_fixer = vim.fs.find("vendor/bin/php-cs-fixer", {
 						upward = true,
 						path = ctx.dirname,
 					})[1]
 
-					if local_pint then
-						return local_pint
+					if local_php_cs_fixer then
+						return local_php_cs_fixer
 					end
 
-					return "pint"
+					return "php-cs-fixer"
 				end,
-				args = { "$FILENAME" },
+				args = { "fix", "$FILENAME" },
 				stdin = false,
 			},
 		},
@@ -37,7 +37,7 @@ function M.setup()
 			yaml = { "prettier" },
 			markdown = { "prettier" },
 
-			php = { "pint" },
+			php = { "php_cs_fixer" },
 		},
 
 		format_on_save = {

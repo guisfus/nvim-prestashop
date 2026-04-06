@@ -43,6 +43,9 @@ vim.pack.add({
 	gh("akinsho/bufferline.nvim"),
 	gh("lukas-reineke/indent-blankline.nvim"),
 	gh("ellisonleao/gruvbox.nvim"),
+
+	-- PrestaShop / templates / PHP
+	gh("blueyed/smarty.vim"),
 })
 
 vim.cmd.colorscheme("gruvbox")

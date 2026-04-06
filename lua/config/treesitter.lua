@@ -15,7 +15,6 @@ function M.setup()
 	-- Parsers
 	ts.install({
 		"bash",
-		"blade",
 		"css",
 		"html",
 		"javascript",
@@ -28,9 +27,6 @@ function M.setup()
 		"query",
 		"scss",
 		"toml",
-		"tsx",
-		"typescript",
-		"vue",
 		"vim",
 		"vimdoc",
 		"yaml",

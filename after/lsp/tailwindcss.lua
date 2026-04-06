@@ -5,11 +5,8 @@ return {
 		"css",
 		"scss",
 		"javascript",
-		"javascriptreact",
-		"typescript",
-		"typescriptreact",
-		"vue",
-		"blade",
+		"smarty",
+		"twig",
 	},
 	root_markers = {
 		"tailwind.config.js",

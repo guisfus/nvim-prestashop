@@ -24,7 +24,6 @@ aucmd("InsertLeave", {
 aucmd("FileType", {
 	pattern = {
 		"bash",
-		"blade",
 		"css",
 		"html",
 		"javascript",
@@ -35,9 +34,6 @@ aucmd("FileType", {
 		"php",
 		"scss",
 		"toml",
-		"typescript",
-		"typescriptreact",
-		"vue",
 		"yaml",
 	},
 	callback = function(args)
@@ -48,7 +44,6 @@ aucmd("FileType", {
 -- Use indent based on treesitter in some filetypes
 aucmd("FileType", {
 	pattern = {
-		"blade",
 		"css",
 		"html",
 		"javascript",
@@ -56,8 +51,6 @@ aucmd("FileType", {
 		"lua",
 		"php",
 		"scss",
-		"typescript",
-		"vue",
 	},
 	callback = function(args)
 		vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"

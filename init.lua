@@ -38,12 +38,11 @@ local cmp_capabilities = require("cmp_nvim_lsp").default_capabilities()
 vim.lsp.config("*", {
 	capabilities = cmp_capabilities,
 })
+vim.lsp.config("twiggy-language-server", require("config.lsp.twiggy_language_server"))
 
 enable_lsp_if_executable("lua_ls", "lua-language-server")
 enable_lsp_if_executable("intelephense", "intelephense")
 enable_lsp_if_executable("html", "vscode-html-language-server")
 enable_lsp_if_executable("tailwindcss", "tailwindcss-language-server")
-enable_lsp_if_executable("ts_ls", "typescript-language-server")
-enable_lsp_if_executable("vue_ls", "vue-language-server")
-enable_lsp_if_executable("eslint", "vscode-eslint-language-server")
 enable_lsp_if_executable("marksman", "marksman")
+enable_lsp_if_executable("twiggy-language-server", "twiggy-language-server")
