@@ -7,15 +7,20 @@ require("config.filetypes")
 require("config.autocmds")
 require("plugins")
 
-local function enable_lsp_if_executable(name, cmd)
+local function enable_lsp_if_executable(name, cmd, opts)
+	opts = opts or {}
+	local notify_missing = opts.notify_missing ~= false
+
 	if vim.fn.executable(cmd) == 1 then
 		vim.lsp.enable(name)
 		return
 	end
 
-	vim.schedule(function()
-		vim.notify(string.format("LSP '%s' not enabled: requires the binary -> '%s'", name, cmd), vim.log.levels.WARN)
-	end)
+	if notify_missing then
+		vim.schedule(function()
+			vim.notify(string.format("LSP '%s' not enabled: requires the binary -> '%s'", name, cmd), vim.log.levels.WARN)
+		end)
+	end
 end
 
 vim.api.nvim_create_autocmd("LspAttach", {
@@ -45,4 +50,4 @@ enable_lsp_if_executable("intelephense", "intelephense")
 enable_lsp_if_executable("html", "vscode-html-language-server")
 enable_lsp_if_executable("tailwindcss", "tailwindcss-language-server")
 enable_lsp_if_executable("marksman", "marksman")
-enable_lsp_if_executable("twiggy-language-server", "twiggy-language-server")
+enable_lsp_if_executable("twiggy-language-server", "twiggy-language-server", { notify_missing = false })

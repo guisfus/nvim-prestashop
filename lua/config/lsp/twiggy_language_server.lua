@@ -1,11 +1,5 @@
 return {
-	cmd = { "twiggy-language-server" },
+	cmd = { "twiggy-language-server", "--stdio" },
 	filetypes = { "twig" },
-	root_markers = {
-		"composer.json",
-		"config/config.inc.php",
-		"config/defines.inc.php",
-		"app/config/parameters.php",
-		".git",
-	},
+	root_dir = require("config.lsp.prestashop_root"),
 }
