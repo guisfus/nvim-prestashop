@@ -6,8 +6,11 @@ This document describes the structure of the **PrestaShop-focused** Neovim confi
 
 - keep one responsibility per file
 - keep plugin declaration separate from plugin setup
-- keep editor behavior in `lua/config/`
-- keep LSP servers split into `after/lsp/`
+- keep global keymaps in one place
+- keep plugin behavior in `lua/config/...`
+- keep LSP servers split into one file per server
+- defer tool-specific LSP activation until a matching filetype is opened
+- keep PrestaShop-specific behavior isolated in workflow modules
 - prefer small, explicit configuration over abstractions
 
 ## Structure
@@ -25,11 +28,19 @@ This document describes the structure of the **PrestaShop-focused** Neovim confi
 │       ├── filetypes.lua
 │       ├── keymaps.lua
 │       ├── lsp/
+│       │   ├── activate.lua
+│       │   ├── prestashop_root.lua
+│       │   ├── tailwind_root.lua
 │       │   └── twiggy_language_server.lua
 │       ├── nvimtree.lua
 │       ├── options.lua
 │       ├── treesitter.lua
-│       └── trouble.lua
+│       ├── trouble.lua
+│       └── workflows/
+│           ├── core.lua
+│           ├── helpers.lua
+│           ├── init.lua
+│           └── prestashop.lua
 ├── after/
 │   ├── plugin/
 │   │   └── setup.lua
@@ -55,11 +66,11 @@ It is responsible for:
 - loading plugins
 - defining LSP keymaps on `LspAttach`
 - applying shared completion capabilities
-- enabling the configured language servers
+- registering workflow-aware LSP activation
 
 ### `lua/plugins.lua`
 
-Contains plugin registration through `vim.pack.add()`.
+Aggregates plugin specs exposed by `lua/config/workflows/*`.
 
 This file declares what is installed, not how it is configured.
 
@@ -68,6 +79,7 @@ This file declares what is installed, not how it is configured.
 Runs plugin setup after plugins are available.
 
 This keeps plugin initialization out of `init.lua` and avoids loading-order issues.
+It also filters workflow-specific setup by the detected project context.
 
 ## Core config files
 
@@ -85,12 +97,23 @@ Automation such as yank highlighting, relative number behavior, and starting Tre
 
 ### `lua/config/filetypes.lua`
 
-Custom filetype detection for PrestaShop templates.
+Aggregates custom filetypes exposed by workflow modules.
 
 Current mappings:
 
 - `.tpl` -> `smarty`
 - `.twig` -> `twig`
+
+## Workflows
+
+### `lua/config/workflows/*`
+
+This branch uses a small workflow split:
+
+- `core`
+- `prestashop`
+
+The goal is to keep central files stable while template support, PHP formatting, and project detection stay isolated in workflow modules.
 
 ## Formatting
 
@@ -102,7 +125,7 @@ Current formatter strategy:
 
 - `stylua` for Lua
 - `prettier` for HTML, CSS, SCSS, JSON, YAML, Markdown, and JavaScript
-- `php-cs-fixer` for PHP
+- `php-cs-fixer` for PHP through the PrestaShop workflow
 
 For PHP, the config first looks for `vendor/bin/php-cs-fixer` upward from the file being edited. If it does not find one, it falls back to the global `php-cs-fixer` binary.
 
@@ -116,17 +139,13 @@ Treesitter is only auto-started for filetypes that are covered by installed pars
 
 ## LSP layout
 
-Most servers are configured under `after/lsp/`. Custom shared modules can also live under `lua/config/lsp/` when explicit registration is needed.
+Most servers are configured under `after/lsp/`. Shared activation and root helpers live under `lua/config/lsp/`.
 
 ### `after/lsp/intelephense.lua`
 
 Main PHP language server for PrestaShop projects.
 
-The root markers include `composer.json` and common PrestaShop files such as:
-
-- `config/config.inc.php`
-- `config/defines.inc.php`
-- `app/config/parameters.php`
+Uses `lua/config/lsp/prestashop_root.lua` to avoid attaching to unrelated PHP roots.
 
 ### `after/lsp/html.lua`
 
@@ -147,7 +166,7 @@ Twig-specific language server for `.twig` files.
 
 Tailwind CSS language server.
 
-Enabled for common markup and stylesheet filetypes used around PrestaShop front-office and module work.
+Enabled for markup and asset filetypes used around PrestaShop front-office and module work.
 
 ### `after/lsp/lua_ls.lua`
 
@@ -161,23 +180,23 @@ Markdown language server.
 
 ### Add a plugin
 
-1. Add it to `lua/plugins.lua`.
+1. Add it to the relevant workflow module under `lua/config/workflows/`.
 2. Configure it in `lua/config/` or `after/plugin/setup.lua`.
 3. Add keymaps in `lua/config/keymaps.lua` if they are global.
 
 ### Add an LSP
 
-1. Create `after/lsp/<name>.lua` for standard servers, or `lua/config/lsp/<name>.lua` if you want to register a custom config explicitly.
-2. Define `cmd`, `filetypes`, and `root_markers`.
-3. Enable it from `init.lua`.
+1. Create `after/lsp/<name>.lua` for standard servers, or `lua/config/lsp/<name>.lua` if you need shared helpers.
+2. Define `cmd`, `filetypes`, and root detection.
+3. Register activation from the relevant workflow.
 
 ### Add a formatter
 
 1. Install the binary in the project or globally.
-2. Register it in `lua/config/conform.lua`.
+2. Register it in the relevant workflow and let `lua/config/conform.lua` aggregate it.
 
 ### Add a filetype
 
-1. Declare it in `lua/config/filetypes.lua`.
+1. Declare it in the relevant workflow module.
 2. Decide whether it also needs LSP support.
 3. Decide whether it has real Treesitter parser support in this repository.

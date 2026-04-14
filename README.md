@@ -14,6 +14,15 @@ This repository is meant to be a clean daily-driver setup for working on:
 - HTML, CSS, SCSS, and JavaScript around themes and modules
 - Lua and Markdown for editor work and documentation
 
+## Workflow modules
+
+Internally, the branch is organized around small workflow modules under `lua/config/workflows/`.
+
+- `core` = shared editor, UI, completion, and baseline LSP behavior
+- `prestashop` = Smarty/Twig support, Twiggy, PrestaShop root detection, and `php-cs-fixer`
+
+The idea is simple: the branch keeps those workflows available, but workflow-specific setup is only activated when the current project or buffer matches it.
+
 ## What it includes
 
 - native Neovim LSP configuration under `after/lsp/`
@@ -34,6 +43,16 @@ This repository is meant to be a clean daily-driver setup for working on:
 - Tailwind classes in markup assets: `tailwindcss-language-server`
 - Markdown: `marksman`
 - Lua: `lua-language-server` + `stylua`
+
+## Branch strategy
+
+If you keep specialized branches, the cleanest approach now is:
+
+- keep shared editor behavior in `core`
+- keep branch-specific behavior in `lua/config/workflows/*`
+- avoid forking `init.lua`, `lua/plugins.lua`, `lua/config/filetypes.lua`, and `lua/config/conform.lua` unless the architecture itself changes
+
+That keeps branch diffs small and makes merges back into `main` much easier.
 
 ## Quick start
 
@@ -174,6 +193,8 @@ The leader key is `<Space>`.
 ├── docs/
 ├── lua/
 │   ├── config/
+│   │   ├── lsp/
+│   │   └── workflows/
 │   └── plugins.lua
 ├── init.lua
 └── nvim-pack-lock.json
@@ -184,6 +205,7 @@ The leader key is `<Space>`.
 - `intelephense` is the main PHP LSP for this repository.
 - `twiggy-language-server` is used only for Twig files.
 - `php-cs-fixer` is resolved from `vendor/bin/php-cs-fixer` first and falls back to the global binary.
+- warnings for missing binaries are deferred until you open a matching filetype
 - `smarty` and `twig` get LSP support here, but not automatic formatting by default because that usually requires extra formatter plugins.
 - Treesitter is only started automatically for the filetypes this config installs parsers for explicitly.
 

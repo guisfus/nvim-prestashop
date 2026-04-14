@@ -7,21 +7,8 @@ require("config.filetypes")
 require("config.autocmds")
 require("plugins")
 
-local function enable_lsp_if_executable(name, cmd, opts)
-	opts = opts or {}
-	local notify_missing = opts.notify_missing ~= false
-
-	if vim.fn.executable(cmd) == 1 then
-		vim.lsp.enable(name)
-		return
-	end
-
-	if notify_missing then
-		vim.schedule(function()
-			vim.notify(string.format("LSP '%s' not enabled: requires the binary -> '%s'", name, cmd), vim.log.levels.WARN)
-		end)
-	end
-end
+local lsp_activate = require("config.lsp.activate")
+local workflows = require("config.workflows")
 
 vim.api.nvim_create_autocmd("LspAttach", {
 	callback = function(args)
@@ -45,9 +32,9 @@ vim.lsp.config("*", {
 })
 vim.lsp.config("twiggy-language-server", require("config.lsp.twiggy_language_server"))
 
-enable_lsp_if_executable("lua_ls", "lua-language-server")
-enable_lsp_if_executable("intelephense", "intelephense")
-enable_lsp_if_executable("html", "vscode-html-language-server")
-enable_lsp_if_executable("tailwindcss", "tailwindcss-language-server")
-enable_lsp_if_executable("marksman", "marksman")
-enable_lsp_if_executable("twiggy-language-server", "twiggy-language-server", { notify_missing = false })
+-- Workflows decide when each LSP is relevant for the current project or buffer.
+workflows.each(function(workflow, name)
+	workflow.register_lsps(lsp_activate, function(context)
+		return workflows.is_active(name, context)
+	end)
+end)

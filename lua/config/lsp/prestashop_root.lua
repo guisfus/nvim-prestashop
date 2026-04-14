@@ -1,9 +1,11 @@
+local M = {}
+
 local function path_ends_with(path, suffix)
 	return path:sub(-#suffix) == suffix
 end
 
-local function find_root(bufnr)
-	local root = vim.fs.root(bufnr, { "composer.json", "artisan", ".git" })
+function M.find_root(bufnr)
+	local root = vim.fs.root(bufnr, { "composer.json" })
 	if root then
 		return root
 	end
@@ -23,9 +25,11 @@ local function find_root(bufnr)
 	end
 end
 
-return function(bufnr, on_dir)
-	local root = find_root(bufnr)
+function M.root_dir(bufnr, on_dir)
+	local root = M.find_root(bufnr)
 	if root then
 		on_dir(root)
 	end
 end
+
+return M
