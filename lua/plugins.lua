@@ -13,7 +13,8 @@ require("config.workflows").each(function(workflow)
 			seen[key] = true
 
 			if spec.repo then
-				plugins[#plugins + 1] = spec.version and { src = gh(spec.repo), version = spec.version } or gh(spec.repo)
+				plugins[#plugins + 1] = spec.version and { src = gh(spec.repo), version = spec.version }
+					or gh(spec.repo)
 			else
 				plugins[#plugins + 1] = spec
 			end
